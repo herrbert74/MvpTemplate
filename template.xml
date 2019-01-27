@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<template
+	format="5"
+	revision="3"
+	name="MVP"
+	description="Creates an MVP screen with a presenter and a view.">
+
+	<category value="Other" />
+
+	<parameter
+		id="basePackageName"
+		name="Base package name"
+		type="string"
+		visibility="false"
+		constraints="package"
+		default="com.babestudios.base" />
+
+	<parameter
+		id="className"
+		name="Functionality Name"
+		type="string"
+		constraints="class|unique|nonempty"
+		default="Function"
+		help="The name of the functionality that requires MVP views. Will used as a prefix."/>
+		
+	<parameter
+		id="repositoryName"
+		name="Repository Name"
+		type="string"
+		constraints="class|unique|nonempty"
+		default="CompaniesRepository"
+		help="The name of the repository."/>
+
+	<parameter
+		id="parameterName"
+		name="Paramater Name"
+		type="string"
+		default="parameter"
+		help="The name of the parameter that the activity might get."/>
+	
+	<parameter id="parameterType" name="Parameter type" type="enum" default="String" help="Choose your parameter type">
+		<option id="Int">Int</option>
+		<option id="String">String</option>
+		<option id="Boolean">Boolean</option>
+		<option id="Any">Object</option>
+	</parameter>
+
+	<parameter
+		id="isList"
+		name="Is list"
+		type="boolean"
+		default="true"
+		help="Whether the screen contains a list"/>
+	
+	<parameter
+		id="isPaging"
+		name="Is paging"
+		type="boolean"
+		visibility="isList"
+		default="true"
+		help="Whether the list has paging thus a load more callback"/>
+		
+	<parameter
+		id="listClassName"
+		name="List Class Name"
+		type="string"
+		constraints="class|unique|nonempty"
+		visibility="isList"
+		default="Dummy"
+		help="The name of the class that will be fetched from the API and displayed in a list"/>
+		
+	<parameter
+		id="listClassNamePlural"
+		name="List Class Name Plural"
+		type="string"
+		constraints="class|unique|nonempty"
+		visibility="isList"
+		default="Dummies"
+		help="The name of the class that will be fetched from the API and displayed in a list, but in plural form"/>
+		
+	<parameter
+		id="packageName"
+		name="Package name"
+		type="string"
+		visibility="false"
+		constraints="package"
+		default="com.mycompany.myapp"/>
+		
+	<parameter
+		id="fullPackageName"
+		name="Package name"
+		type="string"
+		constraints="package"
+		suggest="${packageName}.${className?lower_case}"/>
+		
+	<parameter
+		id="isParallaxHeader"
+		name="Parallax Header"
+		type="boolean"
+		default="true"
+		help="The header contains a text and a large background image that disappears with a parallax effect"/>
+		
+	<parameter
+		id="depends"
+		name="Depends"
+		type="boolean"
+		visibility="isParallaxHeader"
+		default="false"/>
+
+	<globals file="globals.xml.ftl" />
+	<execute file="recipe.xml.ftl" />
+
+</template>
