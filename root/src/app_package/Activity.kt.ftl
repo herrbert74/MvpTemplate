@@ -4,8 +4,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.RxTextView
 import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.ScopeProvider
 import com.ubercab.autodispose.rxlifecycle.RxLifecycleInterop
@@ -19,6 +17,7 @@ import ${basePackageName}.mvp.ErrorType
 import ${basePackageName}.mvp.list.BaseViewHolder
 import ${basePackageName}.view.MultiStateView.*
 import ${applicationPackage}.Injector
+import ${fullPackageName}.list.${className}TypeFactory
 
 private const val CUSTOM_PARAMETER = "${packageName}.CUSTOM_PARAMETER"
 
@@ -42,6 +41,7 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 		pab${className}.setNavigationOnClickListener { onBackPressed() }
 		supportActionBar?.title = "${className}"
 		initPresenter(intent.extras.getString(CUSTOM_PARAMETER)!!)
+		createRecyclerView()
 		observeActions()
 		observeState()
 	}
@@ -58,6 +58,19 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 			${className?uncap_first}Presenter = Injector.get().${className?uncap_first}Presenter()
 			${className?uncap_first}Presenter.setViewModel(viewModel, requestScope())
 		}
+	}
+
+	private fun createRecyclerView() {
+		val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+		rv${className}?.layoutManager = linearLayoutManager
+		rv${className}?.addItemDecoration(
+				DividerItemDecoration(this))
+
+		rv${className}?.addOnScrollListener(object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
+			override fun onLoadMore(page: Int, totalItemsCount: Int) {
+				${className?uncap_first}Presenter.loadMore${className}(page)
+			}
+		})
 	}
 
 	//endregion
@@ -77,8 +90,12 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 			state.${listClassName?lower_case}Items == null -> msv${className}.viewState = VIEW_STATE_EMPTY
 			else -> {
 				msv${className}.viewState = VIEW_STATE_CONTENT
-				//TODO
-				//Do something here
+				if (rv${className}?.adapter == null) {
+					${className?uncap_first}Adapter = Charges2Adapter(viewModel.state.value.${listClassName?uncap_first}Items, ${className}TypeFactory())
+					rv${className}?.adapter = ${className?uncap_first}Adapter
+				} else {
+					${className?uncap_first}Adapter?.updateItems(viewModel.state.value.${listClassName?uncap_first}Items)
+				}
 			}
 		}
 	}

@@ -99,13 +99,6 @@
 		type="boolean"
 		default="true"
 		help="The header contains a text and a large background image that disappears with a parallax effect"/>
-		
-	<parameter
-		id="depends"
-		name="Depends"
-		type="boolean"
-		visibility="isParallaxHeader"
-		default="false"/>
 
 	<globals file="globals.xml.ftl" />
 	<execute file="recipe.xml.ftl" />

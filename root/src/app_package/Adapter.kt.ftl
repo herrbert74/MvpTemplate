@@ -1,6 +1,5 @@
 package ${fullPackageName}.list
 
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -47,9 +46,8 @@ class ${className}Adapter(private var ${className?uncap_first}Visitables: List<A
 		holder.bind(${className?uncap_first}Visitables[position])
 	}
 
-	/*fun updateItems(newChannelVisitables: List<ChannelVisitable>) {
-		val diffResult = DiffUtil.calculateDiff(ChatListDiffUtilCallback(channelVisitables, newChannelVisitables))
-		channelVisitables = ArrayList(newChannelVisitables)
-		diffResult.dispatchUpdatesTo(this)
-	}*/
+	fun updateItems(visitables: List<Abstract${className}Visitable>) {
+		${className?uncap_first}Visitables = visitables
+		notifyDataSetChanged()
+	}
 }
