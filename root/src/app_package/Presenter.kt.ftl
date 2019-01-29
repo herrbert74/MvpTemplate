@@ -3,8 +3,8 @@ package ${fullPackageName}
 import android.annotation.SuppressLint
 import ${basePackageName}.mvp.BasePresenter
 import ${basePackageName}.mvp.Presenter
-import ${basePackageName}.mvp.list.BaseViewHolder
 import ${basePackageName}.rxjava.ObserverWrapper
+import ${applicationPackage}.BuildConfig
 import com.uber.autodispose.AutoDispose
 import ${applicationPackage}.data.${repositoryName}
 import ${fullPackageName}.list.Abstract${className}Visitable
@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 interface ${className}PresenterContract : Presenter<${className}State, ${className}ViewModel> {
 	fun fetch${listClassNamePlural}(${parameterName} : ${parameterType})
-	fun on${listClassNamePlural}ItemClicked(view: BaseViewHolder<Abstract${className}Visitable>)
 	fun loadMore${className}(page: Int)
 	//fun fetch${listClassName}(${parameterName}: String)
 }
@@ -47,6 +46,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 								this.isLoading = false
 								this.contentChange = ContentChange.${listClassNamePlural?upper_case}_RECEIVED
 								this.${listClassName?uncap_first}Items = convertToVisitables(reply)
+								this.totalCount = reply.totalCount?.toInt()
 							}
 						}
 					}
@@ -73,8 +73,8 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 	}
 	
 	override fun loadMoreCharges2(page: Int) {
-		if (viewModel?.state?.value?.chargeItems == null || viewModel?.state?.value?.chargeItems!!.size < viewModel?.state?.value?.totalItems!!) {
-			${repositoryName?uncap_first}..fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
+		if (viewModel?.state?.value?.chargeItems == null || viewModel?.state?.value?.chargeItems!!.size < viewModel?.state?.value?.totalCount!!) {
+			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
 					?: "", (page * Integer.valueOf(BuildConfig.COMPANIES_HOUSE_SEARCH_ITEMS_PER_PAGE)).toString())
 					.subscribeWith(object : ObserverWrapper<${listClassNamePlural}>(this) {
 						override fun onSuccess(reply: ${listClassNamePlural}) {
@@ -90,10 +90,6 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 						}
 					})
 		}
-	}
-	
-	override fun on${listClassNamePlural}ItemClicked(view: BaseViewHolder<Abstract${className}Visitable>) {
-		
 	}
 	
 	//TODO Copy this to ApplicationComponent interface

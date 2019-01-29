@@ -4,20 +4,23 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.ScopeProvider
 import com.ubercab.autodispose.rxlifecycle.RxLifecycleInterop
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.reactivex.CompletableSource
 import kotlinx.android.synthetic.main.activity_${className?lower_case}.*
-import ${fullPackageName}.list.${className}Adapter
-import ${fullPackageName}.list.AbstractCharges2Visitable
+import ${fullPackageName}details.create${className}DetailsIntent
 import ${applicationPackage}.R
 import ${basePackageName}.mvp.ErrorType
 import ${basePackageName}.mvp.list.BaseViewHolder
 import ${basePackageName}.view.MultiStateView.*
 import ${applicationPackage}.Injector
-import ${fullPackageName}.list.${className}TypeFactory
+import ${basePackageName}.view.DividerItemDecoration
+import ${basePackageName}.view.EndlessRecyclerViewScrollListener
+import ${applicationPackage}.ext.startActivityWithRightSlide
+import ${fullPackageName}.list.*
 
 private const val CUSTOM_PARAMETER = "${packageName}.CUSTOM_PARAMETER"
 
@@ -28,8 +31,10 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 	private val viewModel by lazy { ViewModelProviders.of(this).get(${className}ViewModel::class.java) }
 
 	private var ${className?lower_case}Adapter: ${className}Adapter? = null
-	
+
 	private lateinit var ${className?uncap_first}Presenter: ${className}PresenterContract
+
+	private val eventDisposables: CompositeDisposable = CompositeDisposable()
 
 	//region life cycle
 	
@@ -42,8 +47,12 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 		supportActionBar?.title = "${className}"
 		initPresenter(intent.extras.getString(CUSTOM_PARAMETER)!!)
 		createRecyclerView()
-		observeActions()
 		observeState()
+	}
+
+	override fun onResume() {
+		super.onResume()
+		observeActions()
 	}
 
 	private fun initPresenter(customParameter: String) {
@@ -63,9 +72,7 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 	private fun createRecyclerView() {
 		val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 		rv${className}?.layoutManager = linearLayoutManager
-		rv${className}?.addItemDecoration(
-				DividerItemDecoration(this))
-
+		rv${className}?.addItemDecoration(DividerItemDecoration(this))
 		rv${className}?.addOnScrollListener(object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
 			override fun onLoadMore(page: Int, totalItemsCount: Int) {
 				${className?uncap_first}Presenter.loadMore${className}(page)
@@ -93,8 +100,10 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 				if (rv${className}?.adapter == null) {
 					${className?uncap_first}Adapter = Charges2Adapter(viewModel.state.value.${listClassName?uncap_first}Items, ${className}TypeFactory())
 					rv${className}?.adapter = ${className?uncap_first}Adapter
+					observeActions()
 				} else {
 					${className?uncap_first}Adapter?.updateItems(viewModel.state.value.${listClassName?uncap_first}Items)
+					observeActions()
 				}
 			}
 		}
@@ -105,10 +114,16 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 	//region events
 
 	private fun observeActions() {
+		eventDisposables.clear()
 		${className?uncap_first}Adapter?.getViewClickedObservable()
 				?.take(1)
 				?.`as`(AutoDispose.autoDisposable(this))
-				?.subscribe { view: BaseViewHolder<AbstractCharges2Visitable> -> ${className?uncap_first}Presenter.on${listClassNamePlural}ItemClicked(view) }
+				?.subscribe { view: BaseViewHolder<AbstractCharges2Visitable> -> 
+					startActivityWithRightSlide(
+							this.create${className}DetailsIntent(
+									(viewModel.state.value.${listClassName?uncap_first}Items[(view as ${className}ViewHolder).adapterPosition] as Charges2Visitable).${className?uncap_first}Item))
+				}
+				?.let { eventDisposables.add(it) }
 	}
 
 	//endregion
