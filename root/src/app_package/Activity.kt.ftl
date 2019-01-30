@@ -55,7 +55,7 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 		observeActions()
 	}
 
-	private fun initPresenter(customParameter: String) {
+	private fun initPresenter(${parameterName}: String) {
 		val maybePresenter = lastCustomNonConfigurationInstance as ${className}PresenterContract?
 
 		if (maybePresenter != null) {
@@ -63,7 +63,7 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 		}
 
 		if (!::${className?uncap_first}Presenter.isInitialized) {
-			viewModel.state.value.${parameterName} = customParameter
+			viewModel.state.value.${parameterName} = ${parameterName}
 			${className?uncap_first}Presenter = Injector.get().${className?uncap_first}Presenter()
 			${className?uncap_first}Presenter.setViewModel(viewModel, requestScope())
 		}
