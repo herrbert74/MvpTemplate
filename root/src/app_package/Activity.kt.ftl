@@ -22,7 +22,9 @@ import ${basePackageName}.view.EndlessRecyclerViewScrollListener
 import ${applicationPackage}.ext.startActivityWithRightSlide
 import ${fullPackageName}.list.*
 
+<#if isParameter>
 private const val CUSTOM_PARAMETER = "${packageName}.CUSTOM_PARAMETER"
+</#if>
 
 class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 

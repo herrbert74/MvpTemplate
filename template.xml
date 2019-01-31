@@ -22,28 +22,44 @@
 		constraints="class|unique|nonempty"
 		default="Function"
 		help="The name of the functionality that requires MVP views. Will used as a prefix."/>
-		
+
 	<parameter
-		id="repositoryName"
-		name="Repository Name"
-		type="string"
-		constraints="class|unique|nonempty"
-		default="CompaniesRepository"
-		help="The name of the repository."/>
+		id="isParameter"
+		name="Is there a parameter for the Activity?"
+		type="boolean"
+		default="true"
+		help="Whether the screen needs a parameter from the previous one."/>
 
 	<parameter
 		id="parameterName"
 		name="Paramater Name"
 		type="string"
 		default="parameter"
+		visibility="isParameter"
 		help="The name of the parameter that the activity might get."/>
 	
-	<parameter id="parameterType" name="Parameter type" type="enum" default="String" help="Choose your parameter type">
+	<parameter id="parameterType" name="Parameter type" type="enum" default="String" visibility="isParameter" help="Choose your parameter type">
 		<option id="Int">Int</option>
 		<option id="String">String</option>
 		<option id="Boolean">Boolean</option>
 		<option id="Any">Object</option>
 	</parameter>
+
+	<parameter
+		id="isCall"
+		name="Is there a network call when the Activity starts?"
+		type="boolean"
+		default="true"
+		help="Whether the screen needs a network call at startup."/>
+
+	<parameter
+		id="repositoryName"
+		name="Repository Name"
+		type="string"
+		constraints="class|unique|nonempty"
+		default="CompaniesRepository"
+		visibility="isCall"
+		help="The name of the repository."/>
 
 	<parameter
 		id="isList"
