@@ -13,7 +13,7 @@
 		android:layout_height="@dimen/appbar_height"
 		android:theme="@style/AppTheme.AppBarOverlay"
 		app:imageViewSrc="@drawable/bg_${className?lower_case}"/>
-
+<#if isList>
 	<com.babestudios.base.view.MultiStateView
 		android:id="@+id/msv${className}"
 		android:layout_width="match_parent"
@@ -31,5 +31,5 @@
 			android:paddingBottom="@dimen/view_margin_small"
 			android:scrollbars="vertical"/>
 	</com.babestudios.base.view.MultiStateView>
-
+</#if>
 </android.support.design.widget.CoordinatorLayout>

@@ -1,40 +1,58 @@
 package ${fullPackageName}
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
+
+import kotlinx.android.synthetic.main.activity_${camelCaseToUnderscore(className)}.*
+import ${applicationPackage}.R
+import ${basePackageName}.mvp.ErrorType
+<#if isShowingDetails>
+import ${fullPackageName}details.create${className}DetailsIntent
+import ${basePackageName}.mvp.list.BaseViewHolder
+import ${applicationPackage}.ext.startActivityWithRightSlide
+</#if>
+<#if isCall>
 import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.ScopeProvider
 import com.ubercab.autodispose.rxlifecycle.RxLifecycleInterop
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.reactivex.CompletableSource
-import kotlinx.android.synthetic.main.activity_${className?lower_case}.*
-import ${fullPackageName}details.create${className}DetailsIntent
-import ${applicationPackage}.R
-import ${basePackageName}.mvp.ErrorType
-import ${basePackageName}.mvp.list.BaseViewHolder
+import android.arch.lifecycle.ViewModelProviders
 import ${basePackageName}.view.MultiStateView.*
 import ${applicationPackage}.Injector
-import ${basePackageName}.view.DividerItemDecoration
-import ${basePackageName}.view.EndlessRecyclerViewScrollListener
-import ${applicationPackage}.ext.startActivityWithRightSlide
+<#else>
+import android.support.v7.app.AppCompatActivity
+</#if>
+<#if isList>
+import android.support.v7.widget.LinearLayoutManager
 import ${fullPackageName}.list.*
-
-<#if isParameter>
-private const val CUSTOM_PARAMETER = "${packageName}.CUSTOM_PARAMETER"
+import ${basePackageName}.view.DividerItemDecoration
+</#if>
+<#if isPaging>
+import ${basePackageName}.view.EndlessRecyclerViewScrollListener
 </#if>
 
-class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
+import io.reactivex.disposables.CompositeDisposable
+
+<#if isParameter>
+private const val ${camelCaseToUnderscore(parameterName)?upper_case} = "${packageName}.${camelCaseToUnderscore(parameterName)}"
+</#if>
+
+class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#else>AppCompatActivity()</#if> {
+
+	<#if isList>
+
+	private var ${className?uncap_first}Adapter: ${className}Adapter? = null
+	</#if>
+	<#if isCall>
 
 	override fun requestScope(): CompletableSource = RxLifecycleInterop.from(this).requestScope()
-
+	
 	private val viewModel by lazy { ViewModelProviders.of(this).get(${className}ViewModel::class.java) }
 
-	private var ${className?lower_case}Adapter: ${className}Adapter? = null
-
 	private lateinit var ${className?uncap_first}Presenter: ${className}PresenterContract
+	</#if>
 
 	private val eventDisposables: CompositeDisposable = CompositeDisposable()
 
@@ -42,22 +60,29 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_${className?lower_case})
+		setContentView(R.layout.activity_${camelCaseToUnderscore(className)})
 		setSupportActionBar(pab${className}.getToolbar())
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		pab${className}.setNavigationOnClickListener { onBackPressed() }
-		supportActionBar?.title = "${className}"
-		initPresenter(intent.extras.getString(CUSTOM_PARAMETER)!!)
-		createRecyclerView()
+		supportActionBar?.setTitle(R.string.${camelCaseToUnderscore(className)}_title)
+		<#if isCall>
+		initPresenter(<#if isParameter>intent?.extras?.getString(${camelCaseToUnderscore(parameterName)?upper_case})!!</#if>)
+		</#if>
+		<#if isList>
+		createRecyclerView(<#if !isCall && isParameter>intent?.extras?.getString(${camelCaseToUnderscore(parameterName)?upper_case})!!</#if>)
+		</#if>
+		<#if isCall>
 		observeState()
+		</#if>
 	}
 
 	override fun onResume() {
 		super.onResume()
 		observeActions()
 	}
+	<#if isCall>
 
-	private fun initPresenter(${parameterName}: String) {
+	private fun initPresenter(<#if isParameter>${parameterName}: ${parameterType}</#if>) {
 		val maybePresenter = lastCustomNonConfigurationInstance as ${className}PresenterContract?
 
 		if (maybePresenter != null) {
@@ -65,24 +90,42 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 		}
 
 		if (!::${className?uncap_first}Presenter.isInitialized) {
+			<#if isParameter>
 			viewModel.state.value.${parameterName} = ${parameterName}
+			</#if>
 			${className?uncap_first}Presenter = Injector.get().${className?uncap_first}Presenter()
 			${className?uncap_first}Presenter.setViewModel(viewModel, requestScope())
 		}
 	}
+	</#if>
 
-	private fun createRecyclerView() {
+	<#if isList>
+	private fun createRecyclerView(<#if !isCall && isParameter>${parameterName}: ${parameterType}</#if>) {
 		val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 		rv${className}?.layoutManager = linearLayoutManager
-		rv${className}?.addItemDecoration(DividerItemDecoration(this))
-		rv${className}?.addOnScrollListener(object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
+		<#if isPaging>
+		val titlePositions = java.util.ArrayList<Int>()
+		titlePositions.add(0)
+		rv{className}.addItemDecoration(DividerItemDecorationWithSubHeading(this, titlePositions))
+		<#else>
+		rv${className}.addItemDecoration(DividerItemDecoration(this))
+		</#if>
+		<#if isPaging>
+		rv${className}.addOnScrollListener(object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
 			override fun onLoadMore(page: Int, totalItemsCount: Int) {
 				${className?uncap_first}Presenter.loadMore${className}(page)
 			}
 		})
+		</#if>
+		<#if !isCall>
+		${className?uncap_first}Adapter = ${className}Adapter(<#if isParameter>${parameterName}</#if>, ${className}TypeFactory())
+					rv${className}?.adapter = ${className?uncap_first}Adapter
+		</#if>
 	}
-
+	</#if>
+	
 	//endregion
+	<#if isCall>
 
 	//region render
 
@@ -100,7 +143,7 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 			else -> {
 				msv${className}.viewState = VIEW_STATE_CONTENT
 				if (rv${className}?.adapter == null) {
-					${className?uncap_first}Adapter = Charges2Adapter(viewModel.state.value.${listClassName?uncap_first}Items, ${className}TypeFactory())
+					${className?uncap_first}Adapter = ${className}Adapter(viewModel.state.value.${listClassName?uncap_first}Items, ${className}TypeFactory())
 					rv${className}?.adapter = ${className?uncap_first}Adapter
 					observeActions()
 				} else {
@@ -112,11 +155,13 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 	}
 
 	//endregion
+</#if>
 
 	//region events
 
 	private fun observeActions() {
 		eventDisposables.clear()
+		<#if isShowingDetails>
 		${className?uncap_first}Adapter?.getViewClickedObservable()
 				?.take(1)
 				?.`as`(AutoDispose.autoDisposable(this))
@@ -126,12 +171,15 @@ class ${className}Activity : RxAppCompatActivity(), ScopeProvider {
 									(viewModel.state.value.${listClassName?uncap_first}Items[(view as ${className}ViewHolder).adapterPosition] as Charges2Visitable).${className?uncap_first}Item))
 				}
 				?.let { eventDisposables.add(it) }
+		</#if>
 	}
 
 	//endregion
 }
 
-fun Context.create${className}Intent(${parameterName}: String): Intent {
+fun Context.create${className}Intent(<#if isParameter>${parameterName}: ${parameterType}</#if>): Intent {
 	return Intent(this, ${className}Activity::class.java)
-		.putExtra(CUSTOM_PARAMETER, ${parameterName})
+		<#if isParameter>
+		.putExtra(${camelCaseToUnderscore(parameterName)?upper_case}, ${parameterName})
+		</#if>
 }

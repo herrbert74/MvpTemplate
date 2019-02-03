@@ -13,9 +13,16 @@ import io.reactivex.CompletableSource
 import javax.inject.Inject
 
 interface ${className}PresenterContract : Presenter<${className}State, ${className}ViewModel> {
+	<#if isCall>
+		<#if isList>
 	fun fetch${listClassNamePlural}(${parameterName} : ${parameterType})
+			<#if isPaging>
 	fun loadMore${className}(page: Int)
+			</#if>
+		<#else>
 	//fun fetch${listClassName}(${parameterName}: String)
+		</#if>
+	</#if>
 }
 
 @SuppressLint("CheckResult")
@@ -26,18 +33,35 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 	override fun setViewModel(viewModel: ${className}ViewModel?, lifeCycleCompletable: CompletableSource?) {
 		this.viewModel = viewModel
 		this.lifeCycleCompletable = lifeCycleCompletable
+		<#if isCall>
 		sendToViewModel {
 			it.apply {
 				this.isLoading = true
 			}
 		}
+			<#if isList>
+				<#if isParameter>
 		viewModel?.state?.value?.${parameterName}?.also {
 			fetch${listClassNamePlural}(it)
 		}
+				<#else>
+		fetch${listClassNamePlural}()
+				</#if>
+			<#else>
+				<#if isParameter>
+		viewModel?.state?.value?.${parameterName}?.also {
+			fetch${listClassName}(it)
+		}
+				<#else>
+		fetch${listClassName}()
+				</#if>
+			</#if>
+		</#if>
 	}
 	
-	override fun fetch${listClassNamePlural}(${parameterName} : ${parameterType}) {
-		${repositoryName?uncap_first}.fetch${listClassNamePlural}(${parameterName}, "0")
+	<#if isList>
+	override fun fetch${listClassNamePlural}(<#if isParameter>${parameterName} : ${parameterType}</#if>) {
+		${repositoryName?uncap_first}.fetch${listClassNamePlural}(<#if isParameter>${parameterName}</#if><#if isPaging>, "0"</#if>)
 				.`as`(AutoDispose.autoDisposable(lifeCycleCompletable))
 				.subscribeWith(object : ObserverWrapper<${listClassNamePlural}>(this) {
 					override fun onSuccess(reply: ${listClassNamePlural}) {
@@ -53,25 +77,27 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 				})
 	}
 	
-	/*override fun fetch${listClassName}(${parameterName}: String) {
-		${repositoryName}.fetch${className}(parameter)
+	private fun convertToVisitables(reply: ${listClassNamePlural}): List<Abstract${className}Visitable> {
+		return ArrayList(reply.items.map { item -> ${className}Visitable(item) })
+	}
+	<#else>
+	override fun fetch${listClassName}(<#if isParameter>${parameterName}: String</#if>) {
+		${repositoryName}.fetch${className}(<#if isParameter>${parameterName}</#if>)
 				.subscribeWith(object : ObserverWrapper<${listClassName}>(this) {
 					override fun onSuccess(reply: ${listClassName}) {
 						sendToViewModel {
 							it.apply {
 								this.isLoading = false
-								this.contentChange = ContentChange.MESSAGE_DETAILS
-								this.${listClassName}Items = convertHistoryToChatItems(reply)
+								this.contentChange = ContentChange.${className}_RECEIVED
+								this.${listClassName}Items = convertToVisitables(reply)
 							}
 						}
 					}
 				})
-	}*/
-	
-	private fun convertToVisitables(reply: ${listClassNamePlural}): List<Abstract${className}Visitable> {
-		return ArrayList(reply.items.map { item -> ${className}Visitable(item) })
 	}
+	</#if>
 	
+	<#if isPaging>
 	override fun loadMoreCharges2(page: Int) {
 		if (viewModel?.state?.value?.chargeItems == null || viewModel?.state?.value?.chargeItems!!.size < viewModel?.state?.value?.totalCount!!) {
 			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
@@ -91,6 +117,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 					})
 		}
 	}
+	</#if>
 	
 	//TODO Copy this to ApplicationComponent interface
 	fun ${className?lower_case}Presenter(): ${className}Presenter

@@ -69,12 +69,27 @@
 		help="Whether the screen contains a list"/>
 	
 	<parameter
+		id="hasSubHeader"
+		name="Has subheaders"
+		type="boolean"
+		default="true"
+		help="Whether the list has one or more subheaders?"/>
+
+	<parameter
 		id="isPaging"
 		name="Is paging"
 		type="boolean"
 		visibility="isList"
 		default="true"
 		help="Whether the list has paging thus a load more callback"/>
+		
+	<parameter
+		id="isShowingDetails"
+		name="Is showing details"
+		type="boolean"
+		visibility="isList"
+		default="true"
+		help="Whether clicking the list items leads to a details screen"/>
 		
 	<parameter
 		id="listClassName"
