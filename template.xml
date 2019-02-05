@@ -72,7 +72,8 @@
 		id="hasSubHeader"
 		name="Has subheaders"
 		type="boolean"
-		default="true"
+		visibility="isList"
+		default="false"
 		help="Whether the list has one or more subheaders?"/>
 
 	<parameter
@@ -80,7 +81,7 @@
 		name="Is paging"
 		type="boolean"
 		visibility="isList"
-		default="true"
+		default="false"
 		help="Whether the list has paging thus a load more callback"/>
 		
 	<parameter
@@ -88,9 +89,15 @@
 		name="Is showing details"
 		type="boolean"
 		visibility="isList"
-		default="true"
+		default="false"
 		help="Whether clicking the list items leads to a details screen"/>
 		
+	<parameter
+		id="showFab"
+		name="Show FAB"
+		type="boolean"
+		default="false"
+		help="Whether the screen contains a Floating Action Button"/>
 	<parameter
 		id="listClassName"
 		name="List Class Name"

@@ -7,8 +7,10 @@ import ${basePackageName}.rxjava.ObserverWrapper
 import ${applicationPackage}.BuildConfig
 import com.uber.autodispose.AutoDispose
 import ${applicationPackage}.data.${repositoryName}
+<#if isList>
 import ${fullPackageName}.list.Abstract${className}Visitable
 import ${fullPackageName}.list.${className}Visitable
+</#if>
 import io.reactivex.CompletableSource
 import javax.inject.Inject
 
@@ -20,7 +22,7 @@ interface ${className}PresenterContract : Presenter<${className}State, ${classNa
 	fun loadMore${className}(page: Int)
 			</#if>
 		<#else>
-	//fun fetch${listClassName}(${parameterName}: String)
+	fun fetch${className}(${parameterName}: String)
 		</#if>
 	</#if>
 }
@@ -50,10 +52,10 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 			<#else>
 				<#if isParameter>
 		viewModel?.state?.value?.${parameterName}?.also {
-			fetch${listClassName}(it)
+			fetch${className}(it)
 		}
 				<#else>
-		fetch${listClassName}()
+		fetch${className}()
 				</#if>
 			</#if>
 		</#if>
@@ -81,15 +83,15 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		return ArrayList(reply.items.map { item -> ${className}Visitable(item) })
 	}
 	<#else>
-	override fun fetch${listClassName}(<#if isParameter>${parameterName}: String</#if>) {
-		${repositoryName}.fetch${className}(<#if isParameter>${parameterName}</#if>)
-				.subscribeWith(object : ObserverWrapper<${listClassName}>(this) {
-					override fun onSuccess(reply: ${listClassName}) {
+	override fun fetch${className}(<#if isParameter>${parameterName}: String</#if>) {
+		${repositoryName?uncap_first}.fetch${className}(<#if isParameter>${parameterName}</#if>)
+				.subscribeWith(object : ObserverWrapper<${className}>(this) {
+					override fun onSuccess(reply: ${className}) {
 						sendToViewModel {
 							it.apply {
 								this.isLoading = false
 								this.contentChange = ContentChange.${className}_RECEIVED
-								this.${listClassName}Items = convertToVisitables(reply)
+								this.${className?uncap_first} = reply
 							}
 						}
 					}
@@ -98,8 +100,8 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 	</#if>
 	
 	<#if isPaging>
-	override fun loadMoreCharges2(page: Int) {
-		if (viewModel?.state?.value?.chargeItems == null || viewModel?.state?.value?.chargeItems!!.size < viewModel?.state?.value?.totalCount!!) {
+	override fun loadMore${listClassNamePlural}(page: Int) {
+		if (viewModel?.state?.value?.{listClassName?uncap_first}Items == null || viewModel?.state?.value?.{listClassName?uncap_first}Items!!.size < viewModel?.state?.value?.totalCount!!) {
 			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
 					?: "", (page * Integer.valueOf(BuildConfig.COMPANIES_HOUSE_SEARCH_ITEMS_PER_PAGE)).toString())
 					.subscribeWith(object : ObserverWrapper<${listClassNamePlural}>(this) {

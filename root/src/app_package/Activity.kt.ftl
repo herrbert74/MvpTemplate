@@ -139,9 +139,12 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		when {
 			state.isLoading -> msv${className}.viewState = VIEW_STATE_LOADING
 			state.errorType != ErrorType.NONE -> msv${className}.viewState = VIEW_STATE_ERROR
+			<#if isList>
 			state.${listClassName?lower_case}Items == null -> msv${className}.viewState = VIEW_STATE_EMPTY
+			</#if>
 			else -> {
 				msv${className}.viewState = VIEW_STATE_CONTENT
+				<#if isList>
 				if (rv${className}?.adapter == null) {
 					${className?uncap_first}Adapter = ${className}Adapter(viewModel.state.value.${listClassName?uncap_first}Items, ${className}TypeFactory())
 					rv${className}?.adapter = ${className?uncap_first}Adapter
@@ -150,12 +153,20 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 					${className?uncap_first}Adapter?.updateItems(viewModel.state.value.${listClassName?uncap_first}Items)
 					observeActions()
 				}
+				<#else>
+				
+				</#if>
 			}
 		}
 	}
+	<#if !isList>
 
+	private fun show${className}(${className?uncap_first}: ${className}) {
+	}
+	</#if>
+	
 	//endregion
-</#if>
+	</#if>
 
 	//region events
 

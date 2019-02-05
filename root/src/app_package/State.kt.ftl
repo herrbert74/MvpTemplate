@@ -1,7 +1,9 @@
 package ${fullPackageName}
 
 import ${basePackageName}.mvp.BaseState
+<#if isList>
 import ${fullPackageName}.list.Abstract${className}Visitable
+</#if>
 
 enum class ContentChange {
 	NONE,
@@ -9,7 +11,7 @@ enum class ContentChange {
 		<#if isList>
 	${listClassNamePlural?upper_case}_RECEIVED
 		<#else>
-	${className}_RECEIVED
+	${className?upper_case}_RECEIVED
 		</#if>
 	</#if>
 }
