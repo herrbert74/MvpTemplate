@@ -85,6 +85,14 @@
 		help="Whether the list has paging thus a load more callback"/>
 		
 	<parameter
+		id="hasSavedData"
+		name="Has data to save"
+		type="boolean"
+		visibility="&#33;isCall &amp;&amp; &#33;isParameter"
+		default="true"
+		help="Whether there is data to be saved to ViewModel and onSaveInstanceState. Visible only if there is no parameter and no call (e.g. there could be search term)"/>
+
+	<parameter
 		id="isShowingDetails"
 		name="Is showing details"
 		type="boolean"
@@ -98,6 +106,7 @@
 		type="boolean"
 		default="false"
 		help="Whether the screen contains a Floating Action Button"/>
+	
 	<parameter
 		id="listClassName"
 		name="List Class Name"

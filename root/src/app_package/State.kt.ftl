@@ -18,16 +18,15 @@ enum class ContentChange {
 
 data class ${className}State(
 	<#if isList>
-		var ${listClassName?uncap_first}Items: List<Abstract${className}Visitable> = ArrayList()
+		var ${listClassName?uncap_first}Items: List<Abstract${className}Visitable>?
 	<#else>
-		var ${className?uncap_first}: ${className} = ${className}()
+		var ${className?uncap_first}: ${className}?,
 	</#if>
-) : BaseState() {
 	<#if isList>
-	var totalCount: Int? = null
+	var totalCount: Int? = null,
 	</#if>
 	<#if isParameter>
-	var ${parameterName}: ${parameterType}? = ""
+	var ${parameterName}: ${parameterType}? = "",
 	</#if>
 	var contentChange: ContentChange = ContentChange.NONE
-}
+) : BaseState(), Parcelable

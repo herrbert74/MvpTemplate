@@ -65,7 +65,29 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		pab${className}.setNavigationOnClickListener { onBackPressed() }
 		supportActionBar?.setTitle(R.string.${camelCaseToUnderscore(className)}_title)
-		<#if isCall>
+		<#if hasSavedData>
+        when {
+            viewModel.state.value.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if> != null -> {
+                initPresenter(viewModel)
+            }
+            savedInstanceState != null -> {
+                savedInstanceState.getParcelable<${className}State>("STATE")?.let {
+                    with(viewModel.state.value) {
+                        <#if isList>${listClassName?uncap_first}<#else>${className?uncap_first} = it.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}
+						<#if isParameter>
+                        ${parameterName} = it.${parameterName}
+						</#if>
+                    }
+                }
+                initPresenter(viewModel)
+            }
+            else -> {
+                viewModel.state.value.${parameterName} = intent.getStringExtra(${camelCaseToUnderscore(parameterName)?upper_case)
+                initPresenter(viewModel)
+            }
+        }
+	
+		</#elseif isCall>
 		initPresenter(<#if isParameter>intent?.extras?.getString(${camelCaseToUnderscore(parameterName)?upper_case})!!</#if>)
 		</#if>
 		<#if isList>
@@ -80,9 +102,17 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		super.onResume()
 		observeActions()
 	}
+
+	<#if hasSavedData>
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putParcelable("STATE", viewModel.state.value)
+        super.onSaveInstanceState(outState)
+    }
+	</#if>
+
 	<#if isCall>
 
-	private fun initPresenter(<#if isParameter>${parameterName}: ${parameterType}</#if>) {
+	private fun initPresenter(viewModel: ${className}ViewModel) {
 		val maybePresenter = lastCustomNonConfigurationInstance as ${className}PresenterContract?
 
 		if (maybePresenter != null) {
@@ -90,9 +120,6 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		}
 
 		if (!::${className?uncap_first}Presenter.isInitialized) {
-			<#if isParameter>
-			viewModel.state.value.${parameterName} = ${parameterName}
-			</#if>
 			${className?uncap_first}Presenter = Injector.get().${className?uncap_first}Presenter()
 			${className?uncap_first}Presenter.setViewModel(viewModel, requestScope())
 		}
@@ -143,18 +170,23 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 			state.${listClassName?lower_case}Items == null -> msv${className}.viewState = VIEW_STATE_EMPTY
 			</#if>
 			else -> {
-				msv${className}.viewState = VIEW_STATE_CONTENT
 				<#if isList>
-				if (rv${className}?.adapter == null) {
-					${className?uncap_first}Adapter = ${className}Adapter(viewModel.state.value.${listClassName?uncap_first}Items, ${className}TypeFactory())
-					rv${className}?.adapter = ${className?uncap_first}Adapter
-					observeActions()
-				} else {
-					${className?uncap_first}Adapter?.updateItems(viewModel.state.value.${listClassName?uncap_first}Items)
-					observeActions()
+				state.${listClassName?uncap_first}?.let {
+					msv${className}.viewState = VIEW_STATE_CONTENT
+					if (rv${className}?.adapter == null) {
+						${className?uncap_first}Adapter = ${className}Adapter(state.${listClassName?uncap_first}Items, ${className}TypeFactory())
+						rv${className}?.adapter = ${className?uncap_first}Adapter
+						observeActions()
+					} else {
+						${className?uncap_first}Adapter?.updateItems(state.${listClassName?uncap_first}Items)
+						observeActions()
+					}
 				}
 				<#else>
-				
+				state.${className?uncap_first}?.let {
+					msv${className}.viewState = VIEW_STATE_CONTENT
+					show${className}(it)
+				}
 				</#if>
 			}
 		}

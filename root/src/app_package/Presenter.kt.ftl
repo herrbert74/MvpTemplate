@@ -36,28 +36,37 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		this.viewModel = viewModel
 		this.lifeCycleCompletable = lifeCycleCompletable
 		<#if isCall>
-		sendToViewModel {
-			it.apply {
-				this.isLoading = true
+        viewModel?.state?.value?.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}?.let {
+            sendToViewModel {
+                it.apply {
+                    this.isLoading = false
+                    this.contentChange = ContentChange.<#if isList>${camelCaseToUnderscore(listClassNamePlural)?upper_case}<#else>${camelCaseToUnderscore(className)?upper_case}_RECEIVED
+                }
+            }
+        } ?: run {
+			sendToViewModel {
+				it.apply {
+					this.isLoading = true
+				}
 			}
-		}
 			<#if isList>
 				<#if isParameter>
-		viewModel?.state?.value?.${parameterName}?.also {
-			fetch${listClassNamePlural}(it)
-		}
+			viewModel?.state?.value?.${parameterName}?.also {
+				fetch${listClassNamePlural}(it)
+			}
 				<#else>
-		fetch${listClassNamePlural}()
+			fetch${listClassNamePlural}()
 				</#if>
 			<#else>
 				<#if isParameter>
-		viewModel?.state?.value?.${parameterName}?.also {
-			fetch${className}(it)
-		}
+			viewModel?.state?.value?.${parameterName}?.also {
+				fetch${className}(it)
+			}
 				<#else>
-		fetch${className}()
+			fetch${className}()
 				</#if>
 			</#if>
+		}
 		</#if>
 	}
 	
@@ -70,7 +79,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 						sendToViewModel {
 							it.apply {
 								this.isLoading = false
-								this.contentChange = ContentChange.${listClassNamePlural?upper_case}_RECEIVED
+								this.contentChange = ContentChange.${camelCaseToUnderscore(listClassNamePlural)?upper_case}_RECEIVED
 								this.${listClassName?uncap_first}Items = convertToVisitables(reply)
 								this.totalCount = reply.totalCount?.toInt()
 							}
@@ -90,7 +99,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 						sendToViewModel {
 							it.apply {
 								this.isLoading = false
-								this.contentChange = ContentChange.${className}_RECEIVED
+								this.contentChange = ContentChange.${camelCaseToUnderscore(className)?upper_case}_RECEIVED
 								this.${className?uncap_first} = reply
 							}
 						}
