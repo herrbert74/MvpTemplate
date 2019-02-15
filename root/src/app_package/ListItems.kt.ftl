@@ -1,3 +1,6 @@
 package ${fullPackageName}.list
 
-data class ${className}Item(val title: String)
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+data class ${className}Item(val title: String) : Parcelable

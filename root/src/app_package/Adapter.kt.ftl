@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-<#if isShowingDetails>
+<#if areListItemsClickable>
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -22,7 +22,7 @@ class ${className}Adapter(private var ${className?uncap_first}Visitables: List<A
 	override fun getItemViewType(position: Int): Int {
 		return ${className?uncap_first}Visitables[position].type(${className?uncap_first}TypeFactory)
 	}
-	<#if isShowingDetails>
+	<#if areListItemsClickable>
 
 	private val itemClickSubject = PublishSubject.create<BaseViewHolder<Abstract${className}Visitable>>()
 
@@ -38,14 +38,14 @@ class ${className}Adapter(private var ${className?uncap_first}Visitables: List<A
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Abstract${className}Visitable> {
 		val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-		<#if isShowingDetails>return<#else>val v = </#if>${className?uncap_first}TypeFactory.holder(viewType, view) as BaseViewHolder<Abstract${className}Visitable>
-		<#if isShowingDetails>
+		<#if areListItemsClickable>return<#else>val v = </#if>${className?uncap_first}TypeFactory.holder(viewType, view) as BaseViewHolder<Abstract${className}Visitable>
+		<#if areListItemsClickable>
 		RxView.clicks(view)
 				.takeUntil(RxView.detaches(parent))
 				.map { v }
 				.subscribe(itemClickSubject)
-		return v
 		</#if>
+		return v
 	}
 
 	override fun onBindViewHolder(holder: BaseViewHolder<Abstract${className}Visitable>, position: Int) {

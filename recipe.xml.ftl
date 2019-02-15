@@ -13,18 +13,16 @@
 		to="${escapeXmlAttribute(projectOut)}/src/main/java/${slashedPackageName(applicationPackage)}/injection/ApplicationComponent.kt" /-->
 
 	<open file="${escapeXmlAttribute(packageOut)}/${className}Activity.kt"/>
-	<#if isCall>
-		<instantiate from="root/src/app_package/Presenter.kt.ftl"
-			to="${escapeXmlAttribute(packageOut)}/${className}Presenter.kt" />
-		<instantiate from="root/src/app_package/State.kt.ftl"
-			to="${escapeXmlAttribute(packageOut)}/${className}State.kt" />
-		<instantiate from="root/src/app_package/ViewModel.kt.ftl"
-			to="${escapeXmlAttribute(packageOut)}/${className}ViewModel.kt" />
-			
-		<open file="${packageOut}/${className}Presenter.kt"/>
-		<open file="${packageOut}/${className}State.kt"/>
-		<open file="${packageOut}/${className}ViewModel.kt"/>
-	</#if>
+	<instantiate from="root/src/app_package/Presenter.kt.ftl"
+		to="${escapeXmlAttribute(packageOut)}/${className}Presenter.kt" />
+	<instantiate from="root/src/app_package/State.kt.ftl"
+		to="${escapeXmlAttribute(packageOut)}/${className}State.kt" />
+	<instantiate from="root/src/app_package/ViewModel.kt.ftl"
+		to="${escapeXmlAttribute(packageOut)}/${className}ViewModel.kt" />
+
+	<open file="${packageOut}/${className}Presenter.kt"/>
+	<open file="${packageOut}/${className}State.kt"/>
+	<open file="${packageOut}/${className}ViewModel.kt"/>
 	<#if isList>
 		<instantiate from="root/src/app_package/Adapter.kt.ftl"
 			to="${escapeXmlAttribute(packageOut)}/list/${className}Adapter.kt" />

@@ -17,7 +17,7 @@ import javax.inject.Inject
 interface ${className}PresenterContract : Presenter<${className}State, ${className}ViewModel> {
 	<#if isCall>
 		<#if isList>
-	fun fetch${listClassNamePlural}(${parameterName} : ${parameterType})
+	fun fetch${listClassNamePlural}(<#if isParameter>${parameterName} : ${parameterType}</#if>)
 			<#if isPaging>
 	fun loadMore${className}(page: Int)
 			</#if>
@@ -36,14 +36,14 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		this.viewModel = viewModel
 		this.lifeCycleCompletable = lifeCycleCompletable
 		<#if isCall>
-        viewModel?.state?.value?.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}?.let {
-            sendToViewModel {
-                it.apply {
-                    this.isLoading = false
-                    this.contentChange = ContentChange.<#if isList>${camelCaseToUnderscore(listClassNamePlural)?upper_case}<#else>${camelCaseToUnderscore(className)?upper_case}_RECEIVED
-                }
-            }
-        } ?: run {
+		viewModel?.state?.value?.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>?.let {
+			sendToViewModel {
+				it.apply {
+					this.isLoading = false
+					this.contentChange = ContentChange.<#if isList>${camelCaseToUnderscore(listClassNamePlural)?upper_case}<#else>${camelCaseToUnderscore(className)?upper_case}</#if>_RECEIVED
+				}
+			}
+		} ?: run {
 			sendToViewModel {
 				it.apply {
 					this.isLoading = true

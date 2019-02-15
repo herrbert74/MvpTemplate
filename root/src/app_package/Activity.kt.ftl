@@ -7,11 +7,12 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_${camelCaseToUnderscore(className)}.*
 import ${applicationPackage}.R
 import ${basePackageName}.mvp.ErrorType
+<#if areListItemsClickable>
+import ${basePackageName}.mvp.list.BaseViewHolder
 <#if isShowingDetails>
 import ${fullPackageName}details.create${className}DetailsIntent
-import ${basePackageName}.mvp.list.BaseViewHolder
 import ${applicationPackage}.ext.startActivityWithRightSlide
-</#if>
+</#if></#if>
 <#if isCall>
 import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.ScopeProvider
@@ -66,28 +67,28 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		pab${className}.setNavigationOnClickListener { onBackPressed() }
 		supportActionBar?.setTitle(R.string.${camelCaseToUnderscore(className)}_title)
 		<#if hasSavedData>
-        when {
-            viewModel.state.value.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if> != null -> {
-                initPresenter(viewModel)
-            }
-            savedInstanceState != null -> {
-                savedInstanceState.getParcelable<${className}State>("STATE")?.let {
-                    with(viewModel.state.value) {
-                        <#if isList>${listClassName?uncap_first}<#else>${className?uncap_first} = it.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}
+		when {
+			viewModel.state.value.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>Items != null -> {
+				initPresenter(viewModel)
+			}
+			savedInstanceState != null -> {
+				savedInstanceState.getParcelable<${className}State>("STATE")?.let {
+					with(viewModel.state.value) {
+						<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>Items = it.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>Items
 						<#if isParameter>
-                        ${parameterName} = it.${parameterName}
+						${parameterName} = it.${parameterName}
 						</#if>
-                    }
-                }
-                initPresenter(viewModel)
-            }
-            else -> {
-                viewModel.state.value.${parameterName} = intent.getStringExtra(${camelCaseToUnderscore(parameterName)?upper_case)
-                initPresenter(viewModel)
-            }
-        }
+					}
+				}
+				initPresenter(viewModel)
+			}
+			else -> {
+				<#if isParameter>viewModel.state.value.${parameterName} = intent.getStringExtra(${camelCaseToUnderscore(parameterName)}?upper_case)</#if>
+				initPresenter(viewModel)
+			}
+		}
 	
-		</#elseif isCall>
+		<#elseif isCall>
 		initPresenter(<#if isParameter>intent?.extras?.getString(${camelCaseToUnderscore(parameterName)?upper_case})!!</#if>)
 		</#if>
 		<#if isList>
@@ -104,21 +105,15 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 	}
 
 	<#if hasSavedData>
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putParcelable("STATE", viewModel.state.value)
-        super.onSaveInstanceState(outState)
-    }
+	override fun onSaveInstanceState(outState: Bundle?) {
+		outState?.putParcelable("STATE", viewModel.state.value)
+		super.onSaveInstanceState(outState)
+	}
 	</#if>
 
 	<#if isCall>
 
 	private fun initPresenter(viewModel: ${className}ViewModel) {
-		val maybePresenter = lastCustomNonConfigurationInstance as ${className}PresenterContract?
-
-		if (maybePresenter != null) {
-			${className?uncap_first}Presenter = maybePresenter
-		}
-
 		if (!::${className?uncap_first}Presenter.isInitialized) {
 			${className?uncap_first}Presenter = Injector.get().${className?uncap_first}Presenter()
 			${className?uncap_first}Presenter.setViewModel(viewModel, requestScope())
@@ -204,14 +199,18 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 
 	private fun observeActions() {
 		eventDisposables.clear()
-		<#if isShowingDetails>
+		<#if areListItemsClickable>
 		${className?uncap_first}Adapter?.getViewClickedObservable()
 				?.take(1)
 				?.`as`(AutoDispose.autoDisposable(this))
-				?.subscribe { view: BaseViewHolder<AbstractCharges2Visitable> -> 
-					startActivityWithRightSlide(
-							this.create${className}DetailsIntent(
-									(viewModel.state.value.${listClassName?uncap_first}Items[(view as ${className}ViewHolder).adapterPosition] as Charges2Visitable).${className?uncap_first}Item))
+				?.subscribe { view: BaseViewHolder<Abstract${className}Visitable> -> 
+					<#if isShowingDetails>
+					viewModel.state.value.${listClassName?uncap_first}Items?.let { ${listClassName?uncap_first}Items? ->
+						startActivityWithRightSlide(
+								this.create${className}DetailsIntent(
+										(${listClassName?uncap_first}Items[(view as ${className}ViewHolder).adapterPosition] as ${className}Visitable).${className?uncap_first}Item))
+					}
+					</#if>
 				}
 				?.let { eventDisposables.add(it) }
 		</#if>

@@ -47,10 +47,10 @@
 
 	<parameter
 		id="isCall"
-		name="Is there a network call when the Activity starts?"
+		name="Is there a network or preferences call when the Activity starts?"
 		type="boolean"
 		default="true"
-		help="Whether the screen needs a network call at startup."/>
+		help="Whether the screen needs a network or preferences call at startup."/>
 
 	<parameter
 		id="repositoryName"
@@ -93,10 +93,18 @@
 		help="Whether there is data to be saved to ViewModel and onSaveInstanceState. Visible only if there is no parameter and no call (e.g. there could be search term)"/>
 
 	<parameter
+		id="areListItemsClickable"
+		name="Are list items clickable"
+		type="boolean"
+		visibility="isList"
+		default="false"
+		help="Whether clicking the list items leads to an action"/>
+		
+	<parameter
 		id="isShowingDetails"
 		name="Is showing details"
 		type="boolean"
-		visibility="isList"
+		visibility="areListItemsClickable"
 		default="false"
 		help="Whether clicking the list items leads to a details screen"/>
 		
