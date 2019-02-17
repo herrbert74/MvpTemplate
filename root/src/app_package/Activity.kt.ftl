@@ -143,6 +143,22 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 	}
 	</#if>
 	
+	<#if hasMenu>
+	override fun onCreateOptionsMenu(menu: Menu): Boolean {
+		menuInflater.inflate(R.menu.filing_history_details_menu, menu)
+		return true
+	}
+
+	override fun onOptionsItemSelected(item: MenuItem): Boolean {
+		return when (item.itemId) {
+			R.id.action_TODO -> {
+				${className?uncap_first}Presenter.TODO
+				true
+			}
+			else -> super.onOptionsItemSelected(item)
+		}
+	}
+	
 	//endregion
 	<#if isCall>
 

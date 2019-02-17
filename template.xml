@@ -154,6 +154,13 @@
 		type="boolean"
 		default="true"
 		help="The header contains a text and a large background image that disappears with a parallax effect"/>
+		
+	<parameter
+		id="hasMenu"
+		name="Has menu"
+		type="boolean"
+		default="false"
+		help="Whether the Activity has a menu"/>
 
 	<globals file="globals.xml.ftl" />
 	<execute file="recipe.xml.ftl" />

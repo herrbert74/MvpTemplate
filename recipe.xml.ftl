@@ -42,5 +42,9 @@
 		<open file="${srcOut}/list/${className}ListItems.kt"/>
 		<open file="${srcOut}/list/${className}Visitables.kt"/-->
 	</#if>
+	<#if hasMenu>
+		<instantiate from="root/res/menu/menu.xml.ftl"
+			to="${escapeXmlAttribute(resOut)}/menu/menu_${camelCaseToUnderscore(className)}.xml" />
+	</#if>
 
 </recipe>

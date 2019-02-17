@@ -40,6 +40,7 @@
 			android:layout_height="match_parent"
 			android:paddingBottom="@dimen/view_margin_small"
 			android:scrollbars="vertical"/>
-	</com.babestudios.base.view.MultiStateView>
 	</#if>
+	</com.babestudios.base.view.MultiStateView>
+	
 </android.support.design.widget.CoordinatorLayout>
