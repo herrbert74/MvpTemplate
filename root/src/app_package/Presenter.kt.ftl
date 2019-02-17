@@ -70,6 +70,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		</#if>
 	}
 	
+	<#if isCall>
 	<#if isList>
 	override fun fetch${listClassNamePlural}(<#if isParameter>${parameterName} : ${parameterType}</#if>) {
 		${repositoryName?uncap_first}.fetch${listClassNamePlural}(<#if isParameter>${parameterName}</#if><#if isPaging>, "0"</#if>)
@@ -129,8 +130,9 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		}
 	}
 	</#if>
+	</#if>
 	
 	//TODO Copy this to ApplicationComponent interface
-	fun ${className?lower_case}Presenter(): ${className}Presenter
+	fun ${className?uncap_first}Presenter(): ${className}Presenter
 
 }

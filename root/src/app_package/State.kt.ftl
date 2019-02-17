@@ -22,7 +22,7 @@ enum class ContentChange {
 data class ${className}State(
 	<#if isList>
 		var ${listClassName?uncap_first}Items: List<Abstract${className}Visitable>?
-	<#else>
+	<#elseif isCall>
 		var ${className?uncap_first}: ${className}?,
 	</#if>
 	<#if isList>

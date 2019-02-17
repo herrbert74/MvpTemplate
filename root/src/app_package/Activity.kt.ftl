@@ -13,7 +13,7 @@ import ${basePackageName}.mvp.list.BaseViewHolder
 import ${fullPackageName}details.create${className}DetailsIntent
 import ${applicationPackage}.ext.startActivityWithRightSlide
 </#if></#if>
-<#if isCall>
+<#if hasSavedData>
 import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.ScopeProvider
 import com.ubercab.autodispose.rxlifecycle.RxLifecycleInterop
@@ -40,13 +40,13 @@ import io.reactivex.disposables.CompositeDisposable
 private const val ${camelCaseToUnderscore(parameterName)?upper_case} = "${packageName}.${camelCaseToUnderscore(parameterName)}"
 </#if>
 
-class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#else>AppCompatActivity()</#if> {
+class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvider<#else>AppCompatActivity()</#if> {
 
 	<#if isList>
 
 	private var ${className?uncap_first}Adapter: ${className}Adapter? = null
 	</#if>
-	<#if isCall>
+	<#if hasSavedData>
 
 	override fun requestScope(): CompletableSource = RxLifecycleInterop.from(this).requestScope()
 	
@@ -68,13 +68,13 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		supportActionBar?.setTitle(R.string.${camelCaseToUnderscore(className)}_title)
 		<#if hasSavedData>
 		when {
-			viewModel.state.value.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>Items != null -> {
+			viewModel.state.value.<#if isList>${listClassName?uncap_first}Items<#elseif isCall>${className?uncap_first}<#else>${parameterName}</#if> != null -> {
 				initPresenter(viewModel)
 			}
 			savedInstanceState != null -> {
 				savedInstanceState.getParcelable<${className}State>("STATE")?.let {
 					with(viewModel.state.value) {
-						<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>Items = it.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>Items
+						<#if isList>${listClassName?uncap_first}Items<#elseif isCall>${className?uncap_first}</#if><#if isList || isCall> = it.</#if><#if isList>${listClassName?uncap_first}Items<#elseif isCall>${className?uncap_first}</#if>
 						<#if isParameter>
 						${parameterName} = it.${parameterName}
 						</#if>
@@ -83,7 +83,7 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 				initPresenter(viewModel)
 			}
 			else -> {
-				<#if isParameter>viewModel.state.value.${parameterName} = intent.getStringExtra(${camelCaseToUnderscore(parameterName)}?upper_case)</#if>
+				<#if isParameter>viewModel.state.value.${parameterName} = intent.getStringExtra(${camelCaseToUnderscore(parameterName)?upper_case})</#if>
 				initPresenter(viewModel)
 			}
 		}
@@ -103,15 +103,12 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		super.onResume()
 		observeActions()
 	}
-
 	<#if hasSavedData>
+
 	override fun onSaveInstanceState(outState: Bundle?) {
 		outState?.putParcelable("STATE", viewModel.state.value)
 		super.onSaveInstanceState(outState)
 	}
-	</#if>
-
-	<#if isCall>
 
 	private fun initPresenter(viewModel: ${className}ViewModel) {
 		if (!::${className?uncap_first}Presenter.isInitialized) {
@@ -120,8 +117,8 @@ class ${className}Activity : <#if isCall>RxAppCompatActivity(), ScopeProvider<#e
 		}
 	}
 	</#if>
-
 	<#if isList>
+
 	private fun createRecyclerView(<#if !isCall && isParameter>${parameterName}: ${parameterType}</#if>) {
 		val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 		rv${className}?.layoutManager = linearLayoutManager
