@@ -19,14 +19,14 @@ import com.uber.autodispose.ScopeProvider
 import com.ubercab.autodispose.rxlifecycle.RxLifecycleInterop
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.reactivex.CompletableSource
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProviders
 import ${basePackageName}.view.MultiStateView.*
 import ${applicationPackage}.Injector
 <#else>
 import android.support.v7.app.AppCompatActivity
 </#if>
 <#if isList>
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import ${fullPackageName}.list.*
 import ${basePackageName}.view.DividerItemDecoration
 </#if>
@@ -158,6 +158,8 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 			else -> super.onOptionsItemSelected(item)
 		}
 	}
+	
+	</#if>
 	
 	//endregion
 	<#if isCall>
