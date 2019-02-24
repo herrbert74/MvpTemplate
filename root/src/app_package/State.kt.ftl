@@ -9,23 +9,21 @@ import kotlinx.android.parcel.Parcelize
 
 enum class ContentChange {
 	NONE,
-	<#if isCall>
-		<#if isList>
+	<#if isList>
 	${listClassNamePlural?upper_case}_RECEIVED
-		<#else>
+	<#else>
 	${className?upper_case}_RECEIVED
-		</#if>
 	</#if>
 }
 
 @Parcelize
 data class ${className}State(
 	<#if isList>
-		var ${listClassName?uncap_first}Items: List<Abstract${className}Visitable>?
+		var ${listClassName?uncap_first}Items: List<Abstract${className}Visitable>?,
 	<#elseif isCall>
 		var ${className?uncap_first}: ${className}?,
 	</#if>
-	<#if isList>
+	<#if isPaging>
 	var totalCount: Int? = null,
 	</#if>
 	<#if isParameter>

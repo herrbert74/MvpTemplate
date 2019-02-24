@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
 												 xmlns:app="http://schemas.android.com/apk/res-auto"
 												 xmlns:tools="http://schemas.android.com/tools"
 												 android:layout_width="match_parent"
@@ -27,14 +27,14 @@
 		android:id="@+id/msv${className}"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior"
 		app:msv_emptyView="@layout/multi_state_view_empty"
 		app:msv_errorView="@layout/multi_state_view_error"
 		app:msv_loadingView="@layout/multi_state_view_progress"
 		app:msv_viewState="content">
 
 	<#if isList>
-		<android.support.v7.widget.RecyclerView
+		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/rv${className}"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -43,4 +43,4 @@
 	</#if>
 	</com.babestudios.base.view.MultiStateView>
 	
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

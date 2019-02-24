@@ -38,14 +38,14 @@ class ${className}Adapter(private var ${className?uncap_first}Visitables: List<A
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Abstract${className}Visitable> {
 		val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-		<#if areListItemsClickable>return<#else>val v = </#if>${className?uncap_first}TypeFactory.holder(viewType, view) as BaseViewHolder<Abstract${className}Visitable>
+		<#if areListItemsClickable>val v = <#else>return </#if>${className?uncap_first}TypeFactory.holder(viewType, view) as BaseViewHolder<Abstract${className}Visitable>
 		<#if areListItemsClickable>
 		RxView.clicks(view)
 				.takeUntil(RxView.detaches(parent))
 				.map { v }
 				.subscribe(itemClickSubject)
-		</#if>
 		return v
+		</#if>
 	}
 
 	override fun onBindViewHolder(holder: BaseViewHolder<Abstract${className}Visitable>, position: Int) {

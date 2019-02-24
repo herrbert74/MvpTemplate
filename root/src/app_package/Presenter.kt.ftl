@@ -36,7 +36,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		this.viewModel = viewModel
 		this.lifeCycleCompletable = lifeCycleCompletable
 		<#if isCall>
-		viewModel?.state?.value?.<#if isList>${listClassName?uncap_first}<#else>${className?uncap_first}</#if>?.let {
+		viewModel?.state?.value?.<#if isList>${listClassName?uncap_first}Items<#else>${className?uncap_first}</#if>?.let {
 			sendToViewModel {
 				it.apply {
 					this.isLoading = false
@@ -67,11 +67,18 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 				</#if>
 			</#if>
 		}
+		<#else>
+		sendToViewModel {
+			it.apply {
+				this.contentChange = ContentChange.${camelCaseToUnderscore(listClassNamePlural)?upper_case}_RECEIVED
+				this.${listClassName?uncap_first}Items = convertToVisitables(reply)
+			}
+		}
 		</#if>
 	}
 	
 	<#if isCall>
-	<#if isList>
+		<#if isList>
 	override fun fetch${listClassNamePlural}(<#if isParameter>${parameterName} : ${parameterType}</#if>) {
 		${repositoryName?uncap_first}.fetch${listClassNamePlural}(<#if isParameter>${parameterName}</#if><#if isPaging>, "0"</#if>)
 				.`as`(AutoDispose.autoDisposable(lifeCycleCompletable))
@@ -82,17 +89,14 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 								this.isLoading = false
 								this.contentChange = ContentChange.${camelCaseToUnderscore(listClassNamePlural)?upper_case}_RECEIVED
 								this.${listClassName?uncap_first}Items = convertToVisitables(reply)
-								this.totalCount = reply.totalCount?.toInt()
+								<#if isPaging>this.totalCount = reply.totalCount?.toInt()</#if>
 							}
 						}
 					}
 				})
 	}
 	
-	private fun convertToVisitables(reply: ${listClassNamePlural}): List<Abstract${className}Visitable> {
-		return ArrayList(reply.items.map { item -> ${className}Visitable(item) })
-	}
-	<#else>
+		<#else>
 	override fun fetch${className}(<#if isParameter>${parameterName}: String</#if>) {
 		${repositoryName?uncap_first}.fetch${className}(<#if isParameter>${parameterName}</#if>)
 				.subscribeWith(object : ObserverWrapper<${className}>(this) {
@@ -107,9 +111,9 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 					}
 				})
 	}
-	</#if>
+		</#if>
 	
-	<#if isPaging>
+		<#if isPaging>
 	override fun loadMore${listClassNamePlural}(page: Int) {
 		if (viewModel?.state?.value?.{listClassName?uncap_first}Items == null || viewModel?.state?.value?.{listClassName?uncap_first}Items!!.size < viewModel?.state?.value?.totalCount!!) {
 			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
@@ -129,8 +133,12 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 					})
 		}
 	}
+		</#if>
 	</#if>
-	</#if>
+	
+	private fun convertToVisitables(reply: ${listClassNamePlural}): List<Abstract${className}Visitable> {
+		return ArrayList(reply.items.map { item -> ${className}Visitable(item) })
+	}
 	
 	//TODO Copy this to ApplicationComponent interface
 	fun ${className?uncap_first}Presenter(): ${className}Presenter

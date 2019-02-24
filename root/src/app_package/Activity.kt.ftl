@@ -92,11 +92,9 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 		initPresenter(<#if isParameter>intent?.extras?.getString(${camelCaseToUnderscore(parameterName)?upper_case})!!</#if>)
 		</#if>
 		<#if isList>
-		createRecyclerView(<#if !isCall && isParameter>intent?.extras?.getString(${camelCaseToUnderscore(parameterName)?upper_case})!!</#if>)
+		createRecyclerView()
 		</#if>
-		<#if isCall>
 		observeState()
-		</#if>
 	}
 
 	override fun onResume() {
@@ -119,7 +117,7 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 	</#if>
 	<#if isList>
 
-	private fun createRecyclerView(<#if !isCall && isParameter>${parameterName}: ${parameterType}</#if>) {
+	private fun createRecyclerView() {
 		val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 		rv${className}?.layoutManager = linearLayoutManager
 		<#if isPaging>
@@ -135,10 +133,6 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 				${className?uncap_first}Presenter.loadMore${className}(page)
 			}
 		})
-		</#if>
-		<#if !isCall>
-		${className?uncap_first}Adapter = ${className}Adapter(<#if isParameter>${parameterName}</#if>, ${className}TypeFactory())
-					rv${className}?.adapter = ${className?uncap_first}Adapter
 		</#if>
 	}
 	</#if>
@@ -162,7 +156,7 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 	</#if>
 	
 	//endregion
-	<#if isCall>
+	<#if hasSavedData>
 
 	//region render
 
@@ -181,16 +175,15 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 			</#if>
 			else -> {
 				<#if isList>
-				state.${listClassName?uncap_first}?.let {
+				state.${listClassName?uncap_first}Items?.let {
 					msv${className}.viewState = VIEW_STATE_CONTENT
 					if (rv${className}?.adapter == null) {
-						${className?uncap_first}Adapter = ${className}Adapter(state.${listClassName?uncap_first}Items, ${className}TypeFactory())
+						${className?uncap_first}Adapter = ${className}Adapter(it, ${className}TypeFactory())
 						rv${className}?.adapter = ${className?uncap_first}Adapter
-						observeActions()
 					} else {
-						${className?uncap_first}Adapter?.updateItems(state.${listClassName?uncap_first}Items)
-						observeActions()
+						${className?uncap_first}Adapter?.updateItems(it)
 					}
+					observeActions()
 				}
 				<#else>
 				state.${className?uncap_first}?.let {
@@ -220,7 +213,7 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 				?.`as`(AutoDispose.autoDisposable(this))
 				?.subscribe { view: BaseViewHolder<Abstract${className}Visitable> -> 
 					<#if isShowingDetails>
-					viewModel.state.value.${listClassName?uncap_first}Items?.let { ${listClassName?uncap_first}Items? ->
+					viewModel.state.value.${listClassName?uncap_first}Items?.let { ${listClassName?uncap_first}Items ->
 						startActivityWithRightSlide(
 								this.create${className}DetailsIntent(
 										(${listClassName?uncap_first}Items[(view as ${className}ViewHolder).adapterPosition] as ${className}Visitable).${className?uncap_first}Item))
