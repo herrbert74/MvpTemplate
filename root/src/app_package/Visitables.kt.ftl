@@ -3,7 +3,7 @@ package ${fullPackageName}.list
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-abstract class Abstract${className}Visitable {
+abstract class Abstract${className}Visitable : Parcelable{
 	abstract fun type(${className?uncap_first}TypeFactory: ${className}Adapter.${className}TypeFactory): Int
 }
 
