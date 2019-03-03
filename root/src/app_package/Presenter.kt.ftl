@@ -19,7 +19,7 @@ interface ${className}PresenterContract : Presenter<${className}State, ${classNa
 		<#if isList>
 	fun fetch${listClassNamePlural}(<#if isParameter>${parameterName} : ${parameterType}</#if>)
 			<#if isPaging>
-	fun loadMore${className}(page: Int)
+	fun loadMore${listClassNamePlural}(page: Int)
 			</#if>
 		<#else>
 	fun fetch${className}(${parameterName}: String)
@@ -115,12 +115,12 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 	
 		<#if isPaging>
 	override fun loadMore${listClassNamePlural}(page: Int) {
-		if (viewModel?.state?.value?.{listClassName?uncap_first}Items == null || viewModel?.state?.value?.{listClassName?uncap_first}Items!!.size < viewModel?.state?.value?.totalCount!!) {
+		if (viewModel?.state?.value?.${listClassName?uncap_first}Items == null || viewModel?.state?.value?.${listClassName?uncap_first}Items!!.size < viewModel?.state?.value?.totalCount!!) {
 			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
 					?: "", (page * Integer.valueOf(BuildConfig.COMPANIES_HOUSE_SEARCH_ITEMS_PER_PAGE)).toString())
 					.subscribeWith(object : ObserverWrapper<${listClassNamePlural}>(this) {
 						override fun onSuccess(reply: ${listClassNamePlural}) {
-							val newList = viewModel?.state?.value?.chargeItems?.toMutableList()
+							val newList = viewModel?.state?.value?.${listClassName?uncap_first}Items?.toMutableList()
 							newList?.addAll(convertToVisitables(reply))
 							sendToViewModel {
 								it.apply {

@@ -120,17 +120,17 @@ class ${className}Activity : <#if hasSavedData>RxAppCompatActivity(), ScopeProvi
 	private fun createRecyclerView() {
 		val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 		rv${className}?.layoutManager = linearLayoutManager
-		<#if isPaging>
+		<#if hasSubHeader>
 		val titlePositions = java.util.ArrayList<Int>()
 		titlePositions.add(0)
-		rv{className}.addItemDecoration(DividerItemDecorationWithSubHeading(this, titlePositions))
+		rv${className}.addItemDecoration(DividerItemDecorationWithSubHeading(this, titlePositions))
 		<#else>
 		rv${className}.addItemDecoration(DividerItemDecoration(this))
 		</#if>
 		<#if isPaging>
 		rv${className}.addOnScrollListener(object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
 			override fun onLoadMore(page: Int, totalItemsCount: Int) {
-				${className?uncap_first}Presenter.loadMore${className}(page)
+				${className?uncap_first}Presenter.loadMore${listClassNamePlural}(page)
 			}
 		})
 		</#if>
