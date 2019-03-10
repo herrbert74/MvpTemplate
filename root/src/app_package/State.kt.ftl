@@ -10,9 +10,11 @@ import kotlinx.android.parcel.Parcelize
 enum class ContentChange {
 	NONE,
 	<#if isList>
-	${listClassNamePlural?upper_case}_RECEIVED
-	<#else>
-	${className?upper_case}_RECEIVED
+	${camelCaseToUnderscore(listClassNamePlural)?upper_case}_RECEIVED
+	<#elseif isCall>
+	${camelCaseToUnderscore(className)?upper_case}_RECEIVED
+	<#elseif isParameter>
+	${camelCaseToUnderscore(parameterName)?upper_case}_RECEIVED
 	</#if>
 }
 

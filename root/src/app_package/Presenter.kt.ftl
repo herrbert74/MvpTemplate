@@ -67,14 +67,21 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 				</#if>
 			</#if>
 		}
-		<#else>
+		<#elseif isList>
 		sendToViewModel {
 			it.apply {
 				this.contentChange = ContentChange.${camelCaseToUnderscore(listClassNamePlural)?upper_case}_RECEIVED
 				this.${listClassName?uncap_first}Items = convertToVisitables(reply)
 			}
 		}
+		<#else>
+		sendToViewModel {
+			it.apply {
+				this.contentChange = ContentChange.${camelCaseToUnderscore(parameterName)?upper_case}_RECEIVED
+			}
+		}
 		</#if>
+		
 	}
 	
 	<#if isCall>
@@ -136,10 +143,12 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 		</#if>
 	</#if>
 	
+	<#if isList>
 	private fun convertToVisitables(reply: ${listClassNamePlural}): List<Abstract${className}Visitable> {
 		return ArrayList(reply.items.map { item -> ${className}Visitable(item) })
 	}
-	
+	</#if>
+
 	//TODO Copy this to ApplicationComponent interface
 	fun ${className?uncap_first}Presenter(): ${className}Presenter
 
