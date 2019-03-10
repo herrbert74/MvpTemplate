@@ -32,11 +32,11 @@ class ${className}Presenter
 @Inject
 constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresenter<${className}State, ${className}ViewModel>(), ${className}PresenterContract {
 
-	override fun setViewModel(viewModel: ${className}ViewModel?, lifeCycleCompletable: CompletableSource?) {
+	override fun setViewModel(viewModel: ${className}ViewModel, lifeCycleCompletable: CompletableSource?) {
 		this.viewModel = viewModel
 		this.lifeCycleCompletable = lifeCycleCompletable
 		<#if isCall>
-		viewModel?.state?.value?.<#if isList>${listClassName?uncap_first}Items<#else>${className?uncap_first}</#if>?.let {
+		viewModel.state.value?.<#if isList>${listClassName?uncap_first}Items<#else>${className?uncap_first}</#if>?.let {
 			sendToViewModel {
 				it.apply {
 					this.isLoading = false
@@ -51,7 +51,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 			}
 			<#if isList>
 				<#if isParameter>
-			viewModel?.state?.value?.${parameterName}?.also {
+			viewModel.state.value?.${parameterName}?.also {
 				fetch${listClassNamePlural}(it)
 			}
 				<#else>
@@ -59,7 +59,7 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 				</#if>
 			<#else>
 				<#if isParameter>
-			viewModel?.state?.value?.${parameterName}?.also {
+			viewModel.state.value?.${parameterName}?.also {
 				fetch${className}(it)
 			}
 				<#else>
@@ -115,12 +115,12 @@ constructor(var ${repositoryName?uncap_first}: ${repositoryName}) : BasePresente
 	
 		<#if isPaging>
 	override fun loadMore${listClassNamePlural}(page: Int) {
-		if (viewModel?.state?.value?.${listClassName?uncap_first}Items == null || viewModel?.state?.value?.${listClassName?uncap_first}Items!!.size < viewModel?.state?.value?.totalCount!!) {
-			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel?.state?.value?.${parameterName}
+		if (viewModel.state.value?.${listClassName?uncap_first}Items == null || viewModel.state.value?.${listClassName?uncap_first}Items!!.size < viewModel.state.value?.totalCount!!) {
+			${repositoryName?uncap_first}.fetch${listClassNamePlural}(viewModel.state.value?.${parameterName}
 					?: "", (page * Integer.valueOf(BuildConfig.COMPANIES_HOUSE_SEARCH_ITEMS_PER_PAGE)).toString())
 					.subscribeWith(object : ObserverWrapper<${listClassNamePlural}>(this) {
 						override fun onSuccess(reply: ${listClassNamePlural}) {
-							val newList = viewModel?.state?.value?.${listClassName?uncap_first}Items?.toMutableList()
+							val newList = viewModel.state.value?.${listClassName?uncap_first}Items?.toMutableList()
 							newList?.addAll(convertToVisitables(reply))
 							sendToViewModel {
 								it.apply {

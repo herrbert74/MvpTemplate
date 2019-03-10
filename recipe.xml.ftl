@@ -35,7 +35,7 @@
 		<instantiate from="root/src/app_package/Visitables.kt.ftl"
 			to="${escapeXmlAttribute(packageOut)}/list/${className}Visitables.kt" />
 		<instantiate from="root/res/layout/row.xml.ftl"
-			to="${escapeXmlAttribute(resOut)}/layout/row_${className?uncap_first}.xml" />
+			to="${escapeXmlAttribute(resOut)}/layout/row_${camelCaseToUnderscore(className)}.xml" />
 		<open file="${packageOut}/list/${className}Adapter.kt"/>
 		<!--open file="${srcOut}/list/${className}TypeFactory.kt"/>
 		<open file="${srcOut}/list/${className}Viewholders.kt"/>
